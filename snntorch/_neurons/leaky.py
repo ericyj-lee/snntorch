@@ -152,6 +152,7 @@ class Leaky(LIF):
         graded_spikes_factor=1.0,
         learn_graded_spikes_factor=False,
         reset_delay=True,
+        test = "yes"
     ):
         super().__init__(
             beta,
@@ -183,6 +184,8 @@ class Leaky(LIF):
 
         if not self.reset_delay and self.init_hidden:
             raise NotImplementedError("`reset_delay=True` is only supported for `init_hidden=False`")
+        if test == "yes":
+            print("Yes! we can!)
 
 
     def _init_mem(self):
@@ -248,7 +251,7 @@ class Leaky(LIF):
 
     def _base_int(self, input_):
         return self._base_state_function(input_)
-
+   
     @classmethod
     def detach_hidden(cls):
         """Returns the hidden states, detached from the current graph.

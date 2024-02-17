@@ -185,7 +185,7 @@ class Leaky(LIF):
         if not self.reset_delay and self.init_hidden:
             raise NotImplementedError("`reset_delay=True` is only supported for `init_hidden=False`")
         if test == "yes":
-            print("Yes! we can!!)
+            print("Yes! we can!!")
 
 
     def _init_mem(self):

@@ -2,7 +2,7 @@ from .neurons import LIF
 import torch
 from torch import nn
 
-class Leaky(LIF):
+class Leaky_mul2(LIF):
     """
     First-order leaky integrate-and-fire neuron model.
     Input is assumed to be a current injection.

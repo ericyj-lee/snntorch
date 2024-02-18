@@ -198,14 +198,11 @@ class Leaky(LIF):
         return self.mem
     
     def forward(self, input_, mem=None):
-
         if not mem == None:
             self.mem = mem
-        
+
         if self.init_hidden and not mem == None:
-            raise TypeError(
-                "`mem` should not be passed as an argument while `init_hidden=True`"
-            )
+            raise TypeError("`mem` should not be passed as an argument while `init_hidden=True`")
 
         if not self.mem.shape == input_.shape:
             self.mem = torch.zeros_like(input_, device=self.mem.device)
@@ -220,13 +217,20 @@ class Leaky(LIF):
             spk = self.fire_inhibition(self.mem.size(0), self.mem)  # batch_size
         else:
             spk = self.fire(self.mem)
-        
+
         if not self.reset_delay:
             do_reset = spk / self.graded_spikes_factor - self.reset  # avoid double reset
             if self.reset_mechanism_val == 0:  # reset by subtraction
                 self.mem = self.mem - do_reset * self.threshold
             elif self.reset_mechanism_val == 1:  # reset to zero
                 self.mem = self.mem - do_reset * self.mem
+
+        # Check for first-order spike condition
+        for n in range(1, int(self.mem / self.threshold) + 1):
+            if self.mem > n * self.threshold:
+                spk = spk * n
+                if self.reset_mechanism == "subtract":
+                    self.mem = self.mem - n * self.threshold
 
         if self.output:
             return spk, self.mem

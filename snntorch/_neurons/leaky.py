@@ -2,7 +2,7 @@ import torch
 from snntorch.spike import SpikeFunctionBase
 from snntorch import functional_surrogate
 
-class LeakyIntegrateAndFire(Leaky):
+class LIF_mutiple(Leaky):
     def __init__(
         self,
         beta,

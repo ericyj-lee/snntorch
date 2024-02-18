@@ -37,7 +37,7 @@ class Leaky(LIF):
             reset_delay,
         )
 
-    self._init_mem()
+        self._init_mem()
         self.init_hidden = init_hidden
 
         if self.reset_mechanism_val == 0:  # reset by subtraction

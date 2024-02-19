@@ -169,8 +169,8 @@ class Leaky_mul2(LIF):
             learn_graded_spikes_factor,
         )
 
-        # Ensure that mem has the correct shape
         self._init_mem()
+        self.init_hidden = init_hidden
 
         if self.reset_mechanism_val == 0:  # reset by subtraction
             self.state_function = self._base_sub
@@ -178,15 +178,25 @@ class Leaky_mul2(LIF):
             self.state_function = self._base_zero
         elif self.reset_mechanism_val == 2:  # no reset, pure integration
             self.state_function = self._base_int
+        
+        self.reset_delay = reset_delay
 
         if not self.reset_delay and self.init_hidden:
             raise NotImplementedError("`reset_delay=True` is only supported for `init_hidden=False`")
 
+
     def _init_mem(self):
-        # Ensure mem has the correct shape based on the previous Leaky model
         mem = torch.zeros(1)
         self.register_buffer("mem", mem)
 
+    def reset_mem(self):
+        self.mem = torch.zeros_like(self.mem, device=self.mem.device)
+
+    def init_leaky(self):
+        """Deprecated, use :class:`Leaky.reset_mem` instead"""
+        self.reset_mem()
+        return self.mem
+    
     def forward(self, input_, mem=None):
         if not mem == None:
             self.mem = mem
@@ -216,7 +226,7 @@ class Leaky_mul2(LIF):
                 self.mem = self.mem - do_reset * self.mem
 
         # Check for first-order spike condition
-        num_spikes = (self.mem / self.threshold).clamp(0, 1).sum(dim=1, dtype=torch.int)
+        num_spikes = int(self.mem / self.threshold)
         if num_spikes > 0:
             spk = spk * num_spikes
             if self.reset_mechanism == "subtract":
@@ -230,7 +240,7 @@ class Leaky_mul2(LIF):
             return spk
         else:
             return spk, self.mem
-            
+
     def _base_state_function(self, input_):
         base_fn = self.beta.clamp(0, 1) * self.mem + input_
         return base_fn
@@ -266,3 +276,5 @@ class Leaky_mul2(LIF):
                     cls.instances[layer].mem,
                     device=cls.instances[layer].mem.device,
                 )
+            
+    

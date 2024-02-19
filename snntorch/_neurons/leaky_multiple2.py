@@ -226,7 +226,7 @@ class Leaky_mul2(LIF):
                 self.mem = self.mem - do_reset * self.mem
 
         # Check for first-order spike condition
-        num_spikes = int(self.mem / self.threshold)
+        num_spikes = (self.mem / self.threshold).clamp(0, 1).sum(dim=1, dtype=torch.int)
         if num_spikes > 0:
             spk = spk * num_spikes
             if self.reset_mechanism == "subtract":

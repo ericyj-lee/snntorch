@@ -167,7 +167,6 @@ class Leaky_mul2(LIF):
             output,
             graded_spikes_factor,
             learn_graded_spikes_factor,
-            reset_delay,
         )
 
         # Ensure that mem has the correct shape

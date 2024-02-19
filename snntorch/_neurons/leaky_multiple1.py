@@ -233,7 +233,8 @@ class Leaky_mul1(LIF):
         #         if self.reset_mechanism == "subtract":
         #             self.mem = self.mem - n * self.threshold
         mask = (self.mem / self.threshold).floor().int()
-        spk = mask
+        spk = torch.where(mask >= 0, mask, torch.zeros_like(mask))
+        spk = spk.float()
         self.mem =self.mem - mask * self.threshold
 
         if self.output:

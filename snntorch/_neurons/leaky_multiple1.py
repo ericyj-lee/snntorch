@@ -237,7 +237,8 @@ class Leaky_mul1(LIF):
         new_mask = torch.where(mask >= 0, mask, torch.zeros_like(mask))
 
         spk = new_mask
-        spk = spk.float()
+        # spk = spk.float()
+        spk = torch.tensor(spk, dtype=torch.float)
         self.mem =self.mem - new_mask * self.threshold
 
         if self.output:

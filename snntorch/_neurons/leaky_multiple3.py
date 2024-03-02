@@ -2,7 +2,7 @@ from .neurons import LIF
 import torch
 from torch import nn
 
-class Leaky_mul2(LIF):
+class Leaky_mul3(LIF):
     """
     First-order leaky integrate-and-fire neuron model.
     Input is assumed to be a current injection.
@@ -216,7 +216,17 @@ class Leaky_mul2(LIF):
         if self.inhibition:
             spk = self.fire_inhibition(self.mem.size(0), self.mem)  # batch_size
         else:
-            spk = self.fire(self.mem)
+            # spk = self.fire(self.mem) # original LIF spk
+            mask = (self.mem / self.threshold).floor().int()
+            # Create a new mask to set entries less than 0 to 0
+            new_mask = torch.where(mask >= 0, mask, torch.zeros_like(mask))
+    
+            # Create a copy of self.mem before subtraction
+            mem_before_subtraction = self.mem.clone()
+    
+            spk = new_mask
+            # spk = spk.float()
+            spk = torch.tensor(spk, dtype=torch.float).requires_grad_()
 
         if not self.reset_delay:
             do_reset = spk / self.graded_spikes_factor - self.reset  # avoid double reset
@@ -224,32 +234,13 @@ class Leaky_mul2(LIF):
                 self.mem = self.mem - do_reset * self.threshold
             elif self.reset_mechanism_val == 1:  # reset to zero
                 self.mem = self.mem - do_reset * self.mem
-
-        # Check for first-order spike condition
-        # for n in range(1, int(self.mem / self.threshold) + 1):
-        # for n in range(1, int((self.mem / self.threshold).max()) + 1):
-        #     if self.mem > n * self.threshold:
-        #         spk = spk * n
-        #         if self.reset_mechanism == "subtract":
-        #             self.mem = self.mem - n * self.threshold
-        mask = (self.mem / self.threshold).floor().int()
-        # Create a new mask to set entries less than 0 to 0
-        new_mask = torch.where(mask >= 0, mask, torch.zeros_like(mask))
-
-        # Create a copy of self.mem before subtraction
-        mem_before_subtraction = self.mem.clone()
-
-        spk = new_mask
-        # spk = spk.float()
-        spk = torch.tensor(spk, dtype=torch.float).requires_grad_()
-        self.mem = self.mem - new_mask * self.threshold
-
+       
         if self.output:
-            return spk, mem_before_subtraction
+            return spk, self.mem
         elif self.init_hidden:
             return spk
         else:
-            return spk, mem_before_subtraction
+            return spk, self.mem
 
     def _base_state_function(self, input_):
         base_fn = self.beta.clamp(0, 1) * self.mem + input_

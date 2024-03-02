@@ -14,6 +14,7 @@ __neuron__ = [
     "leaky",
     "leaky_multiple1",
     "leaky_multiple2",
+    "leaky_multiple3",
     "leakyparallel",
     "rleaky",
     "rsynaptic",

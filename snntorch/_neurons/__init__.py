@@ -30,6 +30,7 @@ from .lapicque import Lapicque
 from .leaky import Leaky
 from .leaky_multiple1 import Leaky_mul1
 from .leaky_multiple2 import Leaky_mul2
+from .leaky_multiple3 import Leaky_mul3
 from .synaptic import Synaptic
 
 from .rleaky import RLeaky
